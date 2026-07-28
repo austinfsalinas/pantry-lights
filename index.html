@@ -9,9 +9,9 @@
 <!-- Add to Home Screen behavior -->
 
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Pantry Lights" />
-<meta name="theme-color" content="#F4EFE3" />
+<meta name="theme-color" content="#141310" />
 <link rel="manifest" href="manifest.json" />
 <link rel="apple-touch-icon" href="icon-192.png" />
 
@@ -19,69 +19,128 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; background: #F4EFE3; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+  html, body { margin: 0; padding: 0; background: #141310; }
   body {
     font-family: 'Inter', -apple-system, sans-serif;
-    color: #2B261F;
+    color: #D8D2C4;
     padding-bottom: env(safe-area-inset-bottom);
   }
-  #app { max-width: 430px; margin: 0 auto; min-height: 100vh; }
+  #app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; }
 
+  /* Header: darkest surface, brightest text — clearly the anchor of the page */
   header {
+    background: #0E0D0B;
     padding: calc(22px + env(safe-area-inset-top)) 18px 16px;
-    border-bottom: 1px solid rgba(43,38,31,0.12);
+    border-bottom: 1px solid rgba(216,210,196,0.08);
   }
   header .row { display: flex; align-items: baseline; justify-content: space-between; }
-  h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  h1 {
+    margin: 0; font-size: 23px; font-weight: 700; letter-spacing: -0.3px;
+    color: #FBF8F1;
+  }
   .badge {
-    font-size: 12.5px; font-weight: 600; background: #B5432E; color: #FBF8F1;
+    font-size: 12.5px; font-weight: 700; background: #C4573F; color: #FBF8F1;
     border-radius: 20px; padding: 3px 10px; white-space: nowrap;
   }
-  .subtitle { margin: 4px 0 0; font-size: 13.5px; color: rgba(43,38,31,0.6); }
+  .subtitle { margin: 5px 0 0; font-size: 13px; color: rgba(216,210,196,0.45); }
 
   section { padding: 14px 14px 4px; }
   .cat-name {
-    font-family: 'Fredoka', sans-serif; font-size: 14.5px; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.6px; color: rgba(43,38,31,0.55);
+    font-family: 'Fredoka', sans-serif; font-size: 14px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.6px; color: rgba(216,210,196,0.4);
     margin: 0 4px 8px;
   }
-  .card { background: #FBF8F1; border-radius: 12px; border: 1px solid rgba(43,38,31,0.08); overflow: hidden; }
+
+  /* Cards sit close to the page background — low contrast, easy on the eyes */
+  .card {
+    background: #1B1A16; border-radius: 12px; border: 1px solid rgba(216,210,196,0.06);
+    overflow: hidden;
+  }
+
   .item-row {
-    display: flex; align-items: center; gap: 12px; padding: 11px 14px;
-    border-bottom: 1px solid rgba(43,38,31,0.07);
+    display: flex; align-items: center; gap: 12px; padding: 13px 14px;
+    border-bottom: 1px solid rgba(216,210,196,0.05);
+    position: relative;
   }
   .item-row:last-child { border-bottom: none; }
-  .item-name { font-size: 15.5px; font-weight: 500; flex: 1; }
-  .item-name.stocked { opacity: 0.55; }
-  .status-label { font-size: 11.5px; font-weight: 600; white-space: nowrap; }
-  .status-label.green { color: rgba(43,38,31,0.4); }
-  .status-label.yellow { color: #A67D1F; }
-  .status-label.red { color: #B5432E; }
+  .item-row.pressing { background: rgba(216,210,196,0.05); }
+
+  .item-name { font-size: 15.5px; font-weight: 500; flex: 1; color: #D8D2C4; }
+  .item-name.stocked { opacity: 0.4; }
+  .status-label { font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .status-label.green { color: rgba(216,210,196,0.3); }
+  .status-label.yellow { color: #C79A4E; }
+  .status-label.red { color: #C4573F; }
 
   .light {
     width: 30px; height: 30px; border-radius: 50%;
-    border: 2px solid rgba(43,38,31,0.25); flex-shrink: 0; cursor: pointer; padding: 0;
+    border: 2px solid rgba(216,210,196,0.15); flex-shrink: 0; cursor: pointer; padding: 0;
     transition: box-shadow 0.2s ease, transform 0.08s ease;
   }
   .light:active { transform: scale(0.88); }
-  .light.green { background: radial-gradient(circle at 35% 30%, #8FAE7E, #5C7A4B); box-shadow: inset 0 1px 2px rgba(0,0,0,0.15); }
-  .light.yellow { background: radial-gradient(circle at 35% 30%, #E8C46A, #C99A2E); box-shadow: 0 0 6px 1px rgba(201,154,46,0.35); }
-  .light.red { background: radial-gradient(circle at 35% 30%, #D97C6A, #B5432E); box-shadow: 0 0 10px 2px rgba(181,67,46,0.55); }
+  .light.green { background: radial-gradient(circle at 35% 30%, #7E9A6E, #4C6640); box-shadow: inset 0 1px 2px rgba(0,0,0,0.3); }
+  .light.yellow { background: radial-gradient(circle at 35% 30%, #DDB159, #B4872A); box-shadow: 0 0 7px 1px rgba(180,135,42,0.4); }
+  .light.red { background: radial-gradient(circle at 35% 30%, #D17B62, #A63F2A); box-shadow: 0 0 10px 2px rgba(166,63,42,0.55); }
 
   .add-btn {
-    background: none; border: none; color: #5C7A4B; font-size: 14px; font-weight: 600;
+    background: none; border: none; color: #7E9A6E; font-size: 14px; font-weight: 600;
     padding: 10px 6px 4px; cursor: pointer; font-family: inherit;
   }
   .add-row { display: flex; gap: 8px; padding: 10px 14px 16px; }
   .add-row input {
-    flex: 1; border: 1px solid rgba(43,38,31,0.2); border-radius: 8px; padding: 8px 10px;
-    font-size: 15px; font-family: inherit; background: #FBF8F1; color: #2B261F; outline: none;
+    flex: 1; border: 1px solid rgba(216,210,196,0.12); border-radius: 8px; padding: 8px 10px;
+    font-size: 15px; font-family: inherit; background: #0E0D0B; color: #D8D2C4; outline: none;
   }
+  .add-row input::placeholder { color: rgba(216,210,196,0.3); }
   .add-row button {
-    border: none; border-radius: 8px; padding: 8px 14px; background: #5C7A4B; color: #FBF8F1;
+    border: none; border-radius: 8px; padding: 8px 14px; background: #4C6640; color: #F6F2E8;
     font-weight: 600; font-size: 14px; cursor: pointer; font-family: inherit;
   }
+
+  /* Long-press context menu */
+  .menu-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+    display: flex; align-items: flex-end; justify-content: center;
+    z-index: 100;
+  }
+  .menu-sheet {
+    width: 100%; max-width: 430px; background: #1B1A16;
+    border-radius: 16px 16px 0 0; padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    border: 1px solid rgba(216,210,196,0.08); border-bottom: none;
+  }
+  .menu-item-label {
+    text-align: center; font-size: 13px; color: rgba(216,210,196,0.4);
+    padding: 10px 0 4px; font-weight: 600;
+  }
+  .menu-option {
+    display: block; width: 100%; text-align: center; padding: 14px;
+    background: none; border: none; font-size: 16.5px; font-weight: 500;
+    font-family: inherit; cursor: pointer; border-radius: 10px;
+  }
+  .menu-option.edit { color: #D8D2C4; }
+  .menu-option.delete { color: #D17B62; font-weight: 600; }
+  .menu-option:active { background: rgba(216,210,196,0.06); }
+  .menu-cancel {
+    display: block; width: 100%; text-align: center; padding: 14px; margin-top: 8px;
+    background: #24231F; border: none; border-radius: 10px; font-size: 16.5px;
+    font-weight: 600; color: #D8D2C4; font-family: inherit; cursor: pointer;
+  }
+
+  /* Edit sheet */
+  .edit-sheet-inner { padding: 14px 16px 6px; }
+  .edit-sheet-inner input {
+    width: 100%; border: 1px solid rgba(216,210,196,0.15); border-radius: 8px; padding: 10px 12px;
+    font-size: 16px; font-family: inherit; background: #0E0D0B; color: #D8D2C4; outline: none;
+    margin-bottom: 10px;
+  }
+  .edit-sheet-inner .edit-actions { display: flex; gap: 8px; }
+  .edit-sheet-inner .edit-actions button {
+    flex: 1; border: none; border-radius: 8px; padding: 12px; font-size: 15px; font-weight: 600;
+    font-family: inherit; cursor: pointer;
+  }
+  .edit-save { background: #4C6640; color: #F6F2E8; }
+  .edit-cancel { background: #24231F; color: #D8D2C4; }
 </style>
 
 </head>
@@ -92,6 +151,7 @@
 const STATUS_NEXT = { green: "yellow", yellow: "red", red: "green" };
 const STATUS_LABEL = { green: "Stocked", yellow: "Running low", red: "Need to buy" };
 const STORAGE_KEY = "pantry-lights-data";
+const LONG_PRESS_MS = 450;
 
 const DEFAULT_CATEGORIES = [
   { name: "Produce", items: [
@@ -136,7 +196,9 @@ function saveData(data) {
 }
 
 let categories = loadData();
-let addingTo = null; // category index currently showing the add-item input
+let addingTo = null;      // category index currently showing the add-item input
+let activeMenu = null;    // { cat, item } for open long-press menu
+let editingItem = null;   // { cat, item } for open edit sheet
 
 function render() {
   const redCount = categories.reduce((sum, c) => sum + c.items.filter(i => i.status === "red").length, 0);
@@ -147,7 +209,7 @@ function render() {
         <h1>Pantry Lights</h1>
         ${redCount > 0 ? `<span class="badge">${redCount} to buy</span>` : ""}
       </div>
-      <p class="subtitle">Tap a light to cycle: green → yellow → red</p>
+      <p class="subtitle">Tap a light to cycle · hold an item for options</p>
     </header>
   `;
 
@@ -157,7 +219,7 @@ function render() {
       <div class="card">`;
     cat.items.forEach((item, itemIdx) => {
       html += `
-        <div class="item-row">
+        <div class="item-row" data-cat="${catIdx}" data-item="${itemIdx}">
           <button class="light ${item.status}" data-cat="${catIdx}" data-item="${itemIdx}" aria-label="Status: ${STATUS_LABEL[item.status]}. Tap to change."></button>
           <span class="item-name ${item.status === 'green' ? 'stocked' : ''}">${escapeHtml(item.name)}</span>
           <span class="status-label ${item.status}">${STATUS_LABEL[item.status]}</span>
@@ -177,8 +239,45 @@ function render() {
     html += `</section>`;
   });
 
+  // Long-press context menu (Edit / Delete)
+  if (activeMenu) {
+    const item = categories[activeMenu.cat].items[activeMenu.item];
+    html += `
+      <div class="menu-backdrop" id="menu-backdrop">
+        <div class="menu-sheet">
+          <div class="menu-item-label">${escapeHtml(item.name)}</div>
+          <button class="menu-option edit" id="menu-edit">Edit name</button>
+          <button class="menu-option delete" id="menu-delete">Delete item</button>
+          <button class="menu-cancel" id="menu-cancel">Cancel</button>
+        </div>
+      </div>`;
+  }
+
+  // Edit sheet
+  if (editingItem) {
+    const item = categories[editingItem.cat].items[editingItem.item];
+    html += `
+      <div class="menu-backdrop" id="edit-backdrop">
+        <div class="menu-sheet">
+          <div class="edit-sheet-inner">
+            <div class="menu-item-label" style="padding-top:0;">Edit item</div>
+            <input type="text" id="edit-input" value="${escapeHtml(item.name)}" />
+            <div class="edit-actions">
+              <button class="edit-cancel" id="edit-cancel">Cancel</button>
+              <button class="edit-save" id="edit-save">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
   document.getElementById("app").innerHTML = html;
   attachHandlers();
+
+  if (editingItem) {
+    const input = document.getElementById("edit-input");
+    if (input) { input.focus(); input.select(); }
+  }
 }
 
 function escapeHtml(str) {
@@ -188,6 +287,7 @@ function escapeHtml(str) {
 }
 
 function attachHandlers() {
+  // Status light cycling
   document.querySelectorAll(".light").forEach(btn => {
     btn.addEventListener("click", () => {
       const c = +btn.dataset.cat, i = +btn.dataset.item;
@@ -197,6 +297,87 @@ function attachHandlers() {
       render();
     });
   });
+
+  // Long-press detection on each row
+  document.querySelectorAll(".item-row").forEach(row => {
+    let timer = null;
+    let firedLongPress = false;
+
+    const start = () => {
+      firedLongPress = false;
+      row.classList.add("pressing");
+      timer = setTimeout(() => {
+        firedLongPress = true;
+        row.classList.remove("pressing");
+        activeMenu = { cat: +row.dataset.cat, item: +row.dataset.item };
+        render();
+      }, LONG_PRESS_MS);
+    };
+    const cancel = () => {
+      clearTimeout(timer);
+      row.classList.remove("pressing");
+    };
+
+    row.addEventListener("touchstart", start, { passive: true });
+    row.addEventListener("touchend", cancel);
+    row.addEventListener("touchmove", cancel);
+    row.addEventListener("touchcancel", cancel);
+    row.addEventListener("mousedown", start);
+    row.addEventListener("mouseup", cancel);
+    row.addEventListener("mouseleave", cancel);
+
+    // Prevent the light-tap click from also counting as a long-press target
+    row.addEventListener("click", (e) => {
+      if (firedLongPress) { e.stopPropagation(); }
+    });
+  });
+
+  // Context menu actions
+  const menuBackdrop = document.getElementById("menu-backdrop");
+  if (menuBackdrop) {
+    menuBackdrop.addEventListener("click", (e) => {
+      if (e.target === menuBackdrop) { activeMenu = null; render(); }
+    });
+    document.getElementById("menu-cancel").addEventListener("click", () => {
+      activeMenu = null; render();
+    });
+    document.getElementById("menu-delete").addEventListener("click", () => {
+      categories[activeMenu.cat].items.splice(activeMenu.item, 1);
+      activeMenu = null;
+      saveData(categories);
+      render();
+    });
+    document.getElementById("menu-edit").addEventListener("click", () => {
+      editingItem = { cat: activeMenu.cat, item: activeMenu.item };
+      activeMenu = null;
+      render();
+    });
+  }
+
+  // Edit sheet actions
+  const editBackdrop = document.getElementById("edit-backdrop");
+  if (editBackdrop) {
+    editBackdrop.addEventListener("click", (e) => {
+      if (e.target === editBackdrop) { editingItem = null; render(); }
+    });
+    document.getElementById("edit-cancel").addEventListener("click", () => {
+      editingItem = null; render();
+    });
+    const saveEdit = () => {
+      const input = document.getElementById("edit-input");
+      const name = input.value.trim();
+      if (name) {
+        categories[editingItem.cat].items[editingItem.item].name = name;
+        saveData(categories);
+      }
+      editingItem = null;
+      render();
+    };
+    document.getElementById("edit-save").addEventListener("click", saveEdit);
+    document.getElementById("edit-input").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") saveEdit();
+    });
+  }
 
   document.querySelectorAll(".add-btn").forEach(btn => {
     btn.addEventListener("click", () => {
