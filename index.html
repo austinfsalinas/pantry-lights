@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<title>Pantry Lights</title>
+
+<!-- Add to Home Screen behavior -->
+
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Pantry Lights" />
+<meta name="theme-color" content="#F4EFE3" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: #F4EFE3; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: #2B261F;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  #app { max-width: 430px; margin: 0 auto; min-height: 100vh; }
+
+  header {
+    padding: calc(22px + env(safe-area-inset-top)) 18px 16px;
+    border-bottom: 1px solid rgba(43,38,31,0.12);
+  }
+  header .row { display: flex; align-items: baseline; justify-content: space-between; }
+  h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .badge {
+    font-size: 12.5px; font-weight: 600; background: #B5432E; color: #FBF8F1;
+    border-radius: 20px; padding: 3px 10px; white-space: nowrap;
+  }
+  .subtitle { margin: 4px 0 0; font-size: 13.5px; color: rgba(43,38,31,0.6); }
+
+  section { padding: 14px 14px 4px; }
+  .cat-name {
+    font-family: 'Fredoka', sans-serif; font-size: 14.5px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.6px; color: rgba(43,38,31,0.55);
+    margin: 0 4px 8px;
+  }
+  .card { background: #FBF8F1; border-radius: 12px; border: 1px solid rgba(43,38,31,0.08); overflow: hidden; }
+  .item-row {
+    display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+    border-bottom: 1px solid rgba(43,38,31,0.07);
+  }
+  .item-row:last-child { border-bottom: none; }
+  .item-name { font-size: 15.5px; font-weight: 500; flex: 1; }
+  .item-name.stocked { opacity: 0.55; }
+  .status-label { font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+  .status-label.green { color: rgba(43,38,31,0.4); }
+  .status-label.yellow { color: #A67D1F; }
+  .status-label.red { color: #B5432E; }
+
+  .light {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 2px solid rgba(43,38,31,0.25); flex-shrink: 0; cursor: pointer; padding: 0;
+    transition: box-shadow 0.2s ease, transform 0.08s ease;
+  }
+  .light:active { transform: scale(0.88); }
+  .light.green { background: radial-gradient(circle at 35% 30%, #8FAE7E, #5C7A4B); box-shadow: inset 0 1px 2px rgba(0,0,0,0.15); }
+  .light.yellow { background: radial-gradient(circle at 35% 30%, #E8C46A, #C99A2E); box-shadow: 0 0 6px 1px rgba(201,154,46,0.35); }
+  .light.red { background: radial-gradient(circle at 35% 30%, #D97C6A, #B5432E); box-shadow: 0 0 10px 2px rgba(181,67,46,0.55); }
+
+  .add-btn {
+    background: none; border: none; color: #5C7A4B; font-size: 14px; font-weight: 600;
+    padding: 10px 6px 4px; cursor: pointer; font-family: inherit;
+  }
+  .add-row { display: flex; gap: 8px; padding: 10px 14px 16px; }
+  .add-row input {
+    flex: 1; border: 1px solid rgba(43,38,31,0.2); border-radius: 8px; padding: 8px 10px;
+    font-size: 15px; font-family: inherit; background: #FBF8F1; color: #2B261F; outline: none;
+  }
+  .add-row button {
+    border: none; border-radius: 8px; padding: 8px 14px; background: #5C7A4B; color: #FBF8F1;
+    font-weight: 600; font-size: 14px; cursor: pointer; font-family: inherit;
+  }
+</style>
+
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const STATUS_NEXT = { green: "yellow", yellow: "red", red: "green" };
+const STATUS_LABEL = { green: "Stocked", yellow: "Running low", red: "Need to buy" };
+const STORAGE_KEY = "pantry-lights-data";
+
+const DEFAULT_CATEGORIES = [
+  { name: "Produce", items: [
+    { name: "Bananas", status: "yellow" },
+    { name: "Spinach", status: "red" },
+    { name: "Onions", status: "green" },
+    { name: "Garlic", status: "green" },
+  ]},
+  { name: "Dairy & Eggs", items: [
+    { name: "Milk", status: "yellow" },
+    { name: "Eggs", status: "green" },
+    { name: "Butter", status: "green" },
+    { name: "Greek yogurt", status: "red" },
+  ]},
+  { name: "Pantry", items: [
+    { name: "Rice", status: "green" },
+    { name: "Olive oil", status: "green" },
+    { name: "Pasta", status: "yellow" },
+    { name: "Canned tomatoes", status: "red" },
+  ]},
+  { name: "Meat & Freezer", items: [
+    { name: "Chicken thighs", status: "red" },
+    { name: "Ground beef", status: "yellow" },
+    { name: "Frozen peas", status: "green" },
+  ]},
+];
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return DEFAULT_CATEGORIES;
+}
+
+function saveData(data) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.error("Save failed", e);
+  }
+}
+
+let categories = loadData();
+let addingTo = null; // category index currently showing the add-item input
+
+function render() {
+  const redCount = categories.reduce((sum, c) => sum + c.items.filter(i => i.status === "red").length, 0);
+
+  let html = `
+    <header>
+      <div class="row">
+        <h1>Pantry Lights</h1>
+        ${redCount > 0 ? `<span class="badge">${redCount} to buy</span>` : ""}
+      </div>
+      <p class="subtitle">Tap a light to cycle: green → yellow → red</p>
+    </header>
+  `;
+
+  categories.forEach((cat, catIdx) => {
+    html += `<section>
+      <h2 class="cat-name">${escapeHtml(cat.name)}</h2>
+      <div class="card">`;
+    cat.items.forEach((item, itemIdx) => {
+      html += `
+        <div class="item-row">
+          <button class="light ${item.status}" data-cat="${catIdx}" data-item="${itemIdx}" aria-label="Status: ${STATUS_LABEL[item.status]}. Tap to change."></button>
+          <span class="item-name ${item.status === 'green' ? 'stocked' : ''}">${escapeHtml(item.name)}</span>
+          <span class="status-label ${item.status}">${STATUS_LABEL[item.status]}</span>
+        </div>`;
+    });
+    html += `</div>`;
+
+    if (addingTo === catIdx) {
+      html += `
+        <form class="add-row" data-cat="${catIdx}">
+          <input type="text" placeholder="Add item…" autofocus />
+          <button type="submit">Add</button>
+        </form>`;
+    } else {
+      html += `<button class="add-btn" data-cat="${catIdx}">+ Add to ${escapeHtml(cat.name)}</button>`;
+    }
+    html += `</section>`;
+  });
+
+  document.getElementById("app").innerHTML = html;
+  attachHandlers();
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function attachHandlers() {
+  document.querySelectorAll(".light").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const c = +btn.dataset.cat, i = +btn.dataset.item;
+      const item = categories[c].items[i];
+      item.status = STATUS_NEXT[item.status];
+      saveData(categories);
+      render();
+    });
+  });
+
+  document.querySelectorAll(".add-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      addingTo = +btn.dataset.cat;
+      render();
+    });
+  });
+
+  document.querySelectorAll(".add-row").forEach(form => {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const input = form.querySelector("input");
+      const name = input.value.trim();
+      if (!name) return;
+      const c = +form.dataset.cat;
+      categories[c].items.push({ name, status: "green" });
+      addingTo = null;
+      saveData(categories);
+      render();
+    });
+  });
+}
+
+render();
+</script>
+
+</body>
+</html>
